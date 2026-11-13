@@ -63,6 +63,12 @@ _USAGE_LINES = (
         "read_attachment returns the content for a URI or an attachment ID. "
         "list_record_attachments lists the files on a record, and upload_attachment adds one.",
     ),
+    (
+        ("list_dashboards", "get_dashboard", "write_dashboard"),
+        "- Dashboards: write_dashboard builds a spreadsheet dashboard from a spec. To change "
+        "one, read it with get_dashboard, edit the returned spec and write it back. Run "
+        "write_dashboard with dry_run first.",
+    ),
 )
 
 

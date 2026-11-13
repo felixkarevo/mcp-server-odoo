@@ -15,6 +15,7 @@ from mcp.server.transport_security import TransportSecuritySettings
 from . import __version__
 from .access_control import AccessController
 from .config import OdooConfig, get_config
+from .dashboards import register_dashboard_tools
 from .error_handling import (
     ConfigurationError,
     ErrorContext,
@@ -142,6 +143,9 @@ class OdooMCPServer:
             self.app, self.connection, self.access_controller, self.config
         )
         self.tool_handler = register_tools(
+            self.app, self.connection, self.access_controller, self.config
+        )
+        self.dashboard_handler = register_dashboard_tools(
             self.app, self.connection, self.access_controller, self.config
         )
         self._install_connection_guard()

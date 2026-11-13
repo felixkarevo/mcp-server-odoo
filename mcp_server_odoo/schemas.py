@@ -434,3 +434,66 @@ class CallModelMethodResult(BaseModel):
         description="Return value from Odoo (type depends on the method; may be null)",
     )
     message: str = Field(description="Human-readable summary of the call")
+
+
+# ---------------------------------------------------------------------------
+# Dashboards
+# ---------------------------------------------------------------------------
+
+
+class DashboardListResult(BaseModel):
+    """Result of the list_dashboards tool."""
+
+    groups: List[Dict[str, Any]] = Field(
+        description="Dashboard sections (spreadsheet.dashboard.group), each {id, name}"
+    )
+    dashboards: List[Dict[str, Any]] = Field(
+        description="Dashboards, each {id, name, group, sequence, is_published}"
+    )
+    total: int = Field(description="Number of dashboards returned")
+
+
+class DashboardResult(BaseModel):
+    """Result of the get_dashboard tool."""
+
+    id: int = Field(description="spreadsheet.dashboard ID")
+    name: Optional[str] = Field(default=None, description="Dashboard name")
+    group: Optional[str] = Field(default=None, description="Section the dashboard is in")
+    is_published: Optional[bool] = Field(
+        default=None, description="Whether users see the dashboard"
+    )
+    summary: Dict[str, Any] = Field(
+        description="What the dashboard contains: filters, scorecards, charts, pivots and lists"
+    )
+    url: Optional[str] = Field(default=None, description="Link to the dashboard in Odoo")
+    spec: Optional[Dict[str, Any]] = Field(
+        default=None,
+        description=(
+            "The spec the dashboard was last written from: edit it and pass it back to "
+            "write_dashboard. None if write_dashboard did not build the dashboard."
+        ),
+    )
+    edited_in_odoo: bool = Field(
+        default=False,
+        description=(
+            "True if someone changed the dashboard in Odoo's editor since it was last "
+            "written. Those changes are not in the spec or the summary."
+        ),
+    )
+    document: Optional[Dict[str, Any]] = Field(
+        default=None,
+        description="The full o-spreadsheet document; only with raw=True",
+    )
+
+
+class DashboardWriteResult(BaseModel):
+    """Result of the write_dashboard tool."""
+
+    success: bool = Field(description="Whether the dashboard was built")
+    dashboard_id: Optional[int] = Field(
+        default=None, description="ID of the dashboard; None on a dry run that creates one"
+    )
+    url: Optional[str] = Field(default=None, description="Link to the dashboard in Odoo")
+    created: bool = Field(description="True if a dashboard was created, False if replaced")
+    summary: Dict[str, Any] = Field(description="What the built dashboard contains")
+    message: str = Field(description="What happened")

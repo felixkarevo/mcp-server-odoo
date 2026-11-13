@@ -20,6 +20,7 @@ An MCP server that enables AI assistants like Claude to interact with Odoo ERP s
 - 🔢 **Count records** matching specific criteria
 - 📋 **Inspect model fields** to understand data structure
 - 📊 **Server-side aggregation** — group, sum, and count without pulling raw rows
+- 📈 **Spreadsheet dashboards** — build and edit Odoo dashboards from a short declarative spec
 - ⚡ **Workflow actions** — invoke public business methods (post invoice, confirm SO, etc.) via an opt-in escape hatch
 - 📎 **Binary & attachment resources** — fetch images, documents, and `ir.attachment` files via resource URIs
 - 👤 **Personalized session context** — the connected user, timezone, and company scope injected into the session instructions
@@ -794,6 +795,39 @@ Server-side aggregation. Use this whenever the question is "totals/counts/groupi
   "groupby": ["country_id"]
 }
 ```
+
+### `list_dashboards`
+List the spreadsheet dashboards (`spreadsheet.dashboard`) and the sections that hold them. Optional `group` filters on a section name.
+
+### `get_dashboard`
+Read one dashboard as a summary: its global filters, scorecards, charts, pivots and lists, and a link to it. If `write_dashboard` built the dashboard, the result carries the `spec` it was built from: edit that and pass it back to change the dashboard. `edited_in_odoo` says whether someone changed the dashboard in Odoo's editor since it was written. `raw=true` adds the full o-spreadsheet document.
+
+### `write_dashboard`
+Create or replace a dashboard from a declarative spec, on Odoo 18 and later. An Odoo dashboard stores its whole content as one o-spreadsheet JSON document, whose data sources, figures, cell formulas and filter matchings must agree; the tool builds that document from the spec. It wires every global filter to a matching field on each widget's model, and stores the spec in the document so `get_dashboard` can return it.
+
+```json
+{
+  "name": "Receivables",
+  "group": "Finance",
+  "spec": {
+    "title": "Receivables",
+    "filters": [{"type": "date", "label": "Period", "default": "last_90_days"}],
+    "widgets": [
+      {"type": "kpi", "title": "Open", "model": "account.move", "measure": "amount_residual",
+       "domain": [["move_type", "=", "out_invoice"], ["payment_state", "!=", "paid"]], "tone": "warning"},
+      {"type": "chart", "chart": "bar", "title": "Invoiced per month", "model": "account.move",
+       "measure": "amount_total", "group_by": ["invoice_date:month"]},
+      {"type": "list", "title": "Overdue", "model": "account.move", "order": ["invoice_date_due asc"],
+       "columns": ["name", "partner_id", {"name": "invoice_date_due", "highlight": "past"}, "amount_residual"],
+       "domain": [["move_type", "=", "out_invoice"], ["payment_state", "!=", "paid"]]}
+    ]
+  }
+}
+```
+
+Widgets are `kpi`, `chart` (bar, line, pie and more), `row` (charts side by side), `pivot`, `list` and `text`; the tool description documents the full spec. `dry_run=true` builds and checks the document without saving it. A section that does not exist yet is created.
+
+Replacing a dashboard replaces its whole content, and writing `spreadsheet_data` archives the editor's revisions. The tool therefore refuses to replace a dashboard that it did not build, or that someone changed in Odoo's editor since it was written, unless `overwrite=true`. In standard mode, the user needs read access on `spreadsheet.dashboard` for the reads, write or create access for `write_dashboard`, and read access on every model the spec names.
 
 ### `call_model_method`
 Generic XML-RPC `execute_kw` escape hatch — invokes public **business** methods, for workflow actions not covered by CRUD (post invoice, confirm sale order, validate picking, etc.). Available **only** when both `ODOO_YOLO=true` (full YOLO) and `ODOO_MCP_ENABLE_METHOD_CALLS=true` are set; otherwise the tool is not registered. Only public ASCII Python identifiers are accepted as method names — dotted, dashed, whitespace, non-ASCII, and `_`-prefixed names are rejected.

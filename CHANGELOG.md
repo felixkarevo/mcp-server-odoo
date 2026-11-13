@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **Dashboard tools**: `list_dashboards`, `get_dashboard` and `write_dashboard` read and write Odoo's spreadsheet dashboards (`spreadsheet.dashboard`). `write_dashboard` builds the o-spreadsheet document from a declarative spec of scorecards, charts, pivots, lists and text, wires the global filters to each widget's model, and stores the spec in the document so that `get_dashboard` returns it for the next edit. It needs Odoo 18 or later, has a `dry_run`, and refuses to replace a dashboard that it did not build or that was changed in Odoo's editor unless `overwrite=true`.
+
 ## [0.9.0] - 2026-10-10
 
 ### Added
