@@ -309,6 +309,7 @@ The server requires the following environment variables:
 | `ODOO_LOCALE` | No | Language/locale for Odoo responses | `es_ES`, `fr_FR`, `de_DE` |
 | `ODOO_ALLOWED_COMPANIES` | No | Comma-separated company IDs to scope all operations to (multi-company setups) | `1`, `1,3` |
 | `ODOO_YOLO` | No | YOLO mode - bypasses MCP security (⚠️ DEV ONLY) | `off`, `read`, `true` |
+| `ODOO_MCP_ENABLE_DASHBOARDS` | No | Register the dashboard tools `list_dashboards`, `get_dashboard` and `write_dashboard` (see [`write_dashboard`](#write_dashboard)) | `false`, `true` |
 | `ODOO_MCP_ENABLE_METHOD_CALLS` | No | Enable the `call_model_method` tool — requires `ODOO_YOLO=true` (⚠️ Dangerous, see [`call_model_method`](#call_model_method)) | `false`, `true` |
 | `ODOO_RPC_TRANSPORT` | No | RPC protocol in YOLO mode: `auto` (JSON-2 on Odoo 19 and later with an API key, else XML-RPC), `xmlrpc`, or `json2` for Odoo's JSON-2 API (Odoo 19 and later, API key only) | `auto`, `json2` |
 
@@ -797,6 +798,8 @@ Server-side aggregation. Use this whenever the question is "totals/counts/groupi
 ```
 
 ### `list_dashboards`
+The three dashboard tools are registered only when `ODOO_MCP_ENABLE_DASHBOARDS=true`.
+
 List the spreadsheet dashboards (`spreadsheet.dashboard`) and the sections that hold them. Optional `group` filters on a section name.
 
 ### `get_dashboard`

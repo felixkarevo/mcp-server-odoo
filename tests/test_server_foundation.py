@@ -517,6 +517,17 @@ class TestUsageInstructions:
 
         assert "call_model_method" in server.app.instructions
 
+    def test_dashboard_tools_are_opt_in(self):
+        server = self._server(api_key="test_api_key_12345")
+        names = {tool.name for tool in server.app._tool_manager.list_tools()}
+        assert "write_dashboard" not in names
+        assert server.dashboard_handler is None
+
+        server = self._server(api_key="test_api_key_12345", enable_dashboards=True)
+        names = {tool.name for tool in server.app._tool_manager.list_tools()}
+        assert {"list_dashboards", "get_dashboard", "write_dashboard"} <= names
+        assert "write_dashboard" in server.app.instructions
+
 
 class TestServerIntegration:
     """Integration tests with real .env configuration."""

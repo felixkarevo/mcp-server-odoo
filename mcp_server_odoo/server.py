@@ -145,8 +145,12 @@ class OdooMCPServer:
         self.tool_handler = register_tools(
             self.app, self.connection, self.access_controller, self.config
         )
-        self.dashboard_handler = register_dashboard_tools(
-            self.app, self.connection, self.access_controller, self.config
+        # Opt-in: the dashboard tools serve few users, and every registered
+        # tool's description costs tokens in every session
+        self.dashboard_handler = (
+            register_dashboard_tools(self.app, self.connection, self.access_controller, self.config)
+            if self.config.enable_dashboards
+            else None
         )
         self._install_connection_guard()
 

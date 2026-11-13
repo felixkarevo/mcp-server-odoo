@@ -59,6 +59,9 @@ class OdooConfig:
     # Opt-in for call_model_method (effective only with yolo_mode == "true").
     enable_method_calls: bool = False
 
+    # Opt-in for the spreadsheet dashboard tools (list/get/write_dashboard)
+    enable_dashboards: bool = False
+
     # Allowed hosts for DNS rebinding protection (HTTP transport)
     allowed_hosts: list[str] = field(default_factory=list)
 
@@ -333,6 +336,7 @@ def load_config(env_file: Optional[Path] = None) -> OdooConfig:
         yolo_mode=get_yolo_mode(),
         rpc_transport=os.getenv("ODOO_RPC_TRANSPORT", "").strip().lower() or "auto",
         enable_method_calls=get_bool_env("ODOO_MCP_ENABLE_METHOD_CALLS", False),
+        enable_dashboards=get_bool_env("ODOO_MCP_ENABLE_DASHBOARDS", False),
         allowed_hosts=parse_allowed_hosts(),
         max_binary_size=get_int_env("ODOO_MCP_MAX_BINARY_SIZE", 50 * 1024 * 1024),
     )

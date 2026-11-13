@@ -506,6 +506,18 @@ class TestEnableMethodCalls:
             config = load_config()
             assert config.enable_method_calls is False, f"failed for {value!r}"
 
+    def test_dashboards_are_off_by_default(self, monkeypatch):
+        monkeypatch.setenv("ODOO_URL", "http://localhost:8069")
+        monkeypatch.setenv("ODOO_API_KEY", "test-key")
+        monkeypatch.setenv("ODOO_MCP_ENABLE_DASHBOARDS", "")
+        assert load_config().enable_dashboards is False
+
+    def test_dashboards_can_be_enabled(self, monkeypatch):
+        monkeypatch.setenv("ODOO_URL", "http://localhost:8069")
+        monkeypatch.setenv("ODOO_API_KEY", "test-key")
+        monkeypatch.setenv("ODOO_MCP_ENABLE_DASHBOARDS", "true")
+        assert load_config().enable_dashboards is True
+
     def test_warning_when_enabled_without_full_yolo(self, monkeypatch, caplog):
         """Misconfiguration: opt-in without full YOLO emits a WARNING."""
         monkeypatch.setenv("ODOO_URL", "http://localhost:8069")
